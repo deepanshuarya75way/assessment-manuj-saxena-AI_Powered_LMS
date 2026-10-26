@@ -20,7 +20,9 @@ app.use(cors({origin:["https://ai-powered-lms-1-6aan.onrender.com",
     "http://localhost:5174",
     "http://10.109.4.142:5173",
     "http://10.109.4.142:5174"],
-    credentials:true}));
+    credentials:true,
+    methods:["GET","POST","PUT","PATCH","DELETE","OPTIONS"],    
+    allowedHeaders:["Content-Type","Authorization"]}));
 app.use("/api/auth", authRouter)
 app.use("/api/user", userRouter)
 app.use("/api/course", courseRouter)
