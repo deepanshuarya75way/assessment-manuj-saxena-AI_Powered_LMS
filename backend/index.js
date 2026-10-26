@@ -15,10 +15,12 @@ let port = process.env.PORT
 let app = express()
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors({
-    origin:"https://ai-powered-lms-1-6aan.onrender.com",
-    credentials:true
-}))
+app.use(cors({origin:["https://ai-powered-lms-1-6aan.onrender.com",
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://10.109.4.142:5173",
+    "http://10.109.4.142:5174"],
+    credentials:true}));
 app.use("/api/auth", authRouter)
 app.use("/api/user", userRouter)
 app.use("/api/course", courseRouter)

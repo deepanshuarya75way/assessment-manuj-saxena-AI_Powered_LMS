@@ -20,22 +20,31 @@ function Login() {
     const navigate = useNavigate()
     let [show,setShow] = useState(false)
      const [loading,setLoading]= useState(false)
+     const [takeoverInfo, setTakeoverInfo] = useState(null);
      let dispatch = useDispatch()
-    const handleLogin = async () => {
-        setLoading(true)
-        try {
-            const result = await axios.post(serverUrl + "/api/auth/login" , {email , password} ,{withCredentials:true})
-            dispatch(setUserData(result.data))
-            navigate("/")
-            setLoading(false)
-            toast.success("Login Successfully")
-        } catch (error) {
-            console.log(error)
-            setLoading(false)
-            toast.error(error.response.data.message)
-        }
-        
-    }
+     
+     const handleLogin = async () => {
+          setLoading(true);
+            try {
+                    const result = await axios.post(serverUrl + "/api/auth/login", { email, password }, { withCredentials: true });
+                        if (result.data.takeoverRequired) {
+                                  setTakeoverInfo(result.data);
+                                        return;
+                        }
+                            dispatch(setUserData(result.data));
+                                navigate("/");
+                                    toast.success("Login Successfully");
+                    } catch (error) {
+                            console.log(error);
+                                toast.error(error.response?.data?.message || "Login failed");
+                    }
+                    finally{
+                        setLoading(false);
+                    }
+     };
+    
+
+
      const googleLogin = async () => {
             try {
                 const response = await signInWithPopup(auth,provider)
@@ -97,6 +106,38 @@ function Login() {
                 <span className='text-[white] text-2xl'>VIRTUAL COURSES</span>
                 </div>
             </form>
+            
+        {takeoverInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="w-[90%] max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h2 className="mb-3 text-xl font-bold">Device Already Logged In</h2>
+            <p className="mb-6 text-gray-600">
+                You are already logged in on <strong>{takeoverInfo.existingDeviceName}</strong>.
+                Do you want to take over this session?
+            </p>
+            <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setTakeoverInfo(null)} className="rounded-lg border px-4 py-2">Cancel</button>
+                <button type="button" onClick={async () => {
+                setLoading(true);
+                try {
+                    const result = await axios.post(serverUrl + "/api/auth/takeover-session", { email, password }, { withCredentials: true });
+                    dispatch(setUserData(result.data.user));
+                    setTakeoverInfo(null);
+                    navigate("/");
+                    toast.success("Session taken over successfully");
+                } catch (error) {
+                    toast.error(error.response?.data?.message || "Takeover failed");
+                } finally {
+                    setLoading(false);
+                }
+                }} disabled={loading} className="rounded-lg bg-black px-4 py-2 text-white">
+                {loading ? "Please wait..." : "Take Over"}
+                </button>
+            </div>
+            </div>
+        </div>
+        )}
+
           
         </div>
       )

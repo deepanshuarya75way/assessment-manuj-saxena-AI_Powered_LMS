@@ -38,10 +38,19 @@ const userSchema = new mongoose.Schema(
     },
     isOtpVerifed:{
       type:Boolean,
-      default:false
-    }
-    
-  },
+      default:false,
+      activeSessionId: {
+          type: String,
+            default: null
+      },
+      activeDeviceName: {
+          type: String,
+            default: null
+      },
+
+      }
+    },
+
   { timestamps: true }
 );
 
